@@ -1,3 +1,28 @@
 {
-    "type": "module"
+    "name": "github-action-node-tag-release",
+    "version": "1.0.0",
+    "description": "",
+    "main": "dist/index.js",
+    "type": "module",
+    "scripts": {
+        "build": "tsc && cp package.json dist/package.json && cd dist && npm install --only=production"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/fdiesel/github-action-node-tag-release.git"
+    },
+    "author": "fdiesel",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/fdiesel/github-action-node-tag-release/issues"
+    },
+    "homepage": "https://github.com/fdiesel/github-action-node-tag-release#readme",
+    "devDependencies": {
+        "@types/node": "^18.15.3",
+        "typescript": "^4.9.5"
+    },
+    "dependencies": {
+        "@actions/core": "^1.10.0",
+        "@actions/github": "^5.1.1"
+    }
 }
