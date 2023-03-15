@@ -1,20 +1,22 @@
-name: "Tag and Release"
-author: "fdiesel"
+name: Tag and Release
+author: fdiesel
 inputs:
+  token:
+    description: The github token. Use secrets.GITHUB_TOKEN
+    required: true
   path:
-    description: "path to the package.json file"
+    description: Path to package.json file
     default: "./package.json"
     required: false
-  token:
-    description: "The github token. Use secrets.GITHUB_TOKEN"
-    required: true
+  prefix:
+    description: Optional version prefix
+    default: ""
+    required: false
 outputs:
-  release_created:
-    description: A boolean to indicate if a new release was created
-  release_exists:
-    description: A boolean to indicate if the release with the current tag already exists
-  release_tag:
-    description: If release exists, will contain the tag name, otherwise undefined
+  created:
+    description: If tag and release was created
+  version:
+    description: Version in package.json
 runs:
-  using: "node16"
-  main: "dist/index.js"
+  using: node16
+  main: dist/index.js
