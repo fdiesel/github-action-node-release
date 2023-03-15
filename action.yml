@@ -16,5 +16,5 @@ outputs:
   release_tag:
     description: If release exists, will contain the tag name, otherwise undefined
 runs:
-  using: "node18"
+  using: "node16"
   main: "dist/index.js"
