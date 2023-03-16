@@ -1,13 +1,17 @@
-name: Tag and Release
+name: Release
+
 on:
   push:
     branches: main
 
 jobs:
-  tag_release:
+
+  release:
+
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout repository
         uses: actions/checkout@v3
 
