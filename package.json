@@ -5,7 +5,7 @@
     "main": "index.js",
     "type": "module",
     "scripts": {
-        "build": "source ./build.sh"
+        "build": "./build.sh"
     },
     "repository": {
         "type": "git",
