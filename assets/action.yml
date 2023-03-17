@@ -1,7 +1,7 @@
 name: Node Release
 description: Creates a release based on the package.json version
 branding:
-  icon: archive
+  icon: tag
   color: blue
 author: fdiesel
 inputs:
