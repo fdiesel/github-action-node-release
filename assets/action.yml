@@ -1,4 +1,8 @@
-name: Release
+name: Node Release
+description: Creates a release based on the package.json version
+branding:
+  icon: archive
+  color: blue
 author: fdiesel
 inputs:
   token:
