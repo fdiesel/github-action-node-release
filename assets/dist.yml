@@ -6,24 +6,6 @@ on:
 
 jobs:
 
-  test:
-
-    runs-on: ubuntu-latest
-
-    steps:
-
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3.6.0
-
-      - name: Install
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-
   release:
 
     runs-on: ubuntu-latest
