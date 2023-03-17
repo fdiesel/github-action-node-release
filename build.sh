@@ -5,6 +5,7 @@ tsc
 cp package.json dist/package.json
 cp assets/action.yml dist/action.yml
 cp LICENSE dist/LICENSE
+cp README.md dist/README.md
 
 mkdir dist/.github
 mkdir dist/.github/workflows
