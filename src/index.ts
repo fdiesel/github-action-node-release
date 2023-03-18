@@ -56,12 +56,11 @@ async function main() {
   const octokit = github.getOctokit(token);
 
   const exists = await releaseExists(octokit, packageVersion);
-  let release_context: Record<string, unknown> = {};
 
   if (exists) {
     core.notice(`Release and Tag '${packageVersion}' already exists`);
   } else {
-    release_context = (await createRelease(octokit, packageVersion)) || {};
+    await createRelease(octokit, packageVersion);
   }
 
   core.setOutput("created", created);
