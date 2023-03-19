@@ -82,10 +82,11 @@ async function run() {
 
   const exists = await releaseExists(octokit, prefixedPackageVersion);
 
+  let releaseNotes;
+
   if (exists) {
     core.notice(`Release and Tag '${prefixedPackageVersion}' already exists`);
   } else {
-    let releaseNotes;
     if (generateReleaseNotes) {
       const commitHash = await latestReleaseCommitHash(octokit);
       const commitMessages = await commitMessagesSinceCommitHash(octokit, commitHash);
@@ -96,6 +97,7 @@ async function run() {
 
   core.setOutput("created", created);
   core.setOutput("version", packageVersion);
+  core.setOutput("changelog", releaseNotes || "");
 }
 
 run();

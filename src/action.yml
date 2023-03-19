@@ -25,6 +25,8 @@ outputs:
     description: If tag and release was created
   version:
     description: Version in package.json
+  changelog:
+    description: List of all commits since last release
 runs:
   using: node16
   main: index.js
