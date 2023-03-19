@@ -56,7 +56,7 @@ async function commitMessagesSinceCommitHash(octokit, commitHash) {
         return (await octokit.rest.repos.listCommits({
             owner,
             repo,
-            since: commitHash
+            sha: commitHash
         })).data.map(commit => commit.commit.message);
     }
     catch (error) {
