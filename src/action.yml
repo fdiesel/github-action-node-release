@@ -16,6 +16,10 @@ inputs:
     description: Optional version prefix
     default: ""
     required: false
+  notes:
+    description: Optional generating release notes
+    default: "true"
+    required: false
 outputs:
   created:
     description: If tag and release was created
