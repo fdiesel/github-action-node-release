@@ -22,7 +22,7 @@ async function releaseExists(octokit, tagName) {
         return false;
     }
 }
-async function createRelease(octokit, tagName) {
+async function createRelease(octokit, tagName, generateReleaseNotes) {
     const { repo, owner } = github.context.repo;
     try {
         const res = await octokit.rest.repos.createRelease({
@@ -31,6 +31,7 @@ async function createRelease(octokit, tagName) {
             tag_name: tagName,
             name: tagName,
             target_commitish: github.context.sha,
+            generate_release_notes: generateReleaseNotes,
         });
         core.notice(`Created tag and release '${tagName}'`);
         created = true;
@@ -44,12 +45,13 @@ async function main() {
     const packageVersion = core.getInput("prefix") + getPackageVersion();
     const token = core.getInput("token");
     const octokit = github.getOctokit(token);
+    const generateReleaseNotes = core.getInput('notes') == 'true';
     const exists = await releaseExists(octokit, packageVersion);
     if (exists) {
         core.notice(`Release and Tag '${packageVersion}' already exists`);
     }
     else {
-        await createRelease(octokit, packageVersion);
+        await createRelease(octokit, packageVersion, generateReleaseNotes);
     }
     core.setOutput("created", created);
     core.setOutput("version", packageVersion);
