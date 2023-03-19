@@ -2,6 +2,7 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 import { readFileSync } from "fs";
 let created = false;
+const { repo, owner } = github.context.repo;
 function getPackageVersion() {
     const filePath = core.getInput("path");
     const fileRaw = readFileSync(filePath, { encoding: "utf8" });
@@ -9,7 +10,6 @@ function getPackageVersion() {
     return file.version;
 }
 async function releaseExists(octokit, tagName) {
-    const { repo, owner } = github.context.repo;
     try {
         await octokit.rest.repos.getReleaseByTag({
             owner,
@@ -22,8 +22,7 @@ async function releaseExists(octokit, tagName) {
         return false;
     }
 }
-async function createRelease(octokit, tagName, generateReleaseNotes) {
-    const { repo, owner } = github.context.repo;
+async function createRelease(octokit, tagName, releaseNotes = '') {
     try {
         const res = await octokit.rest.repos.createRelease({
             owner,
@@ -31,7 +30,7 @@ async function createRelease(octokit, tagName, generateReleaseNotes) {
             tag_name: tagName,
             name: tagName,
             target_commitish: github.context.sha,
-            generate_release_notes: generateReleaseNotes,
+            body: releaseNotes
         });
         core.notice(`Created tag and release '${tagName}'`);
         created = true;
@@ -41,19 +40,49 @@ async function createRelease(octokit, tagName, generateReleaseNotes) {
         core.setFailed(`Action failed with error ${error}`);
     }
 }
-async function main() {
-    const packageVersion = core.getInput("prefix") + getPackageVersion();
+async function latestReleaseCommitHash(octokit) {
+    try {
+        return (await octokit.rest.repos.getLatestRelease({
+            owner,
+            repo
+        })).data.target_commitish;
+    }
+    catch (error) {
+        return undefined;
+    }
+}
+async function commitMessagesSinceCommitHash(octokit, commitHash) {
+    try {
+        return (await octokit.rest.repos.listCommits({
+            owner,
+            repo,
+            since: commitHash
+        })).data.map(commit => commit.commit.message);
+    }
+    catch (error) {
+        core.setFailed(`Action failed with error ${error}`);
+    }
+}
+async function run() {
+    const packageVersion = getPackageVersion();
+    const prefixedPackageVersion = core.getInput('prefix') + packageVersion;
     const token = core.getInput("token");
     const octokit = github.getOctokit(token);
     const generateReleaseNotes = core.getInput('notes') == 'true';
-    const exists = await releaseExists(octokit, packageVersion);
+    const exists = await releaseExists(octokit, prefixedPackageVersion);
     if (exists) {
-        core.notice(`Release and Tag '${packageVersion}' already exists`);
+        core.notice(`Release and Tag '${prefixedPackageVersion}' already exists`);
     }
     else {
-        await createRelease(octokit, packageVersion, generateReleaseNotes);
+        let releaseNotes;
+        if (generateReleaseNotes) {
+            const commitHash = await latestReleaseCommitHash(octokit);
+            const commitMessages = await commitMessagesSinceCommitHash(octokit, commitHash);
+            releaseNotes = commitMessages?.join("\n");
+        }
+        await createRelease(octokit, prefixedPackageVersion, releaseNotes);
     }
     core.setOutput("created", created);
     core.setOutput("version", packageVersion);
 }
-main();
+run();
