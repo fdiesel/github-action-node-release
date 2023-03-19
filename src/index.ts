@@ -52,17 +52,18 @@ async function createRelease(
 }
 
 async function main() {
-  const packageVersion = core.getInput("prefix") + getPackageVersion();
+  const packageVersion = getPackageVersion();
+  const prefixedPackageVersion = core.getInput('prefix') + packageVersion;
   const token = core.getInput("token");
   const octokit = github.getOctokit(token);
   const generateReleaseNotes = core.getInput('notes') == 'true';
 
-  const exists = await releaseExists(octokit, packageVersion);
+  const exists = await releaseExists(octokit, prefixedPackageVersion);
 
   if (exists) {
-    core.notice(`Release and Tag '${packageVersion}' already exists`);
+    core.notice(`Release and Tag '${prefixedPackageVersion}' already exists`);
   } else {
-    await createRelease(octokit, packageVersion, generateReleaseNotes);
+    await createRelease(octokit, prefixedPackageVersion, generateReleaseNotes);
   }
 
   core.setOutput("created", created);
