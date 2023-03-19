@@ -66,7 +66,7 @@ async function commitMessagesSinceCommitHash(octokit: ReturnType<typeof github.g
     return (await octokit.rest.repos.listCommits({
       owner,
       repo,
-      since: commitHash
+      sha: commitHash
     })).data.map(commit => commit.commit.message);
   } catch (error) {
     core.setFailed(`Action failed with error ${error}`);
