@@ -50,23 +50,23 @@ async function createRelease(
   }
 }
 
-async function latestReleaseCommitHash(octokit: ReturnType<typeof github.getOctokit>) {
+async function latestReleaseDate(octokit: ReturnType<typeof github.getOctokit>) {
   try {
     return (await octokit.rest.repos.getLatestRelease({
       owner,
       repo
-    })).data.target_commitish;
+    })).data.published_at;
   } catch (error) {
     return undefined;
   }
 }
 
-async function commitMessagesSinceCommitHash(octokit: ReturnType<typeof github.getOctokit>, commitHash?: string) {
+async function commitMessagesSinceCommitHash(octokit: ReturnType<typeof github.getOctokit>, since: string | undefined) {
   try {
     return (await octokit.rest.repos.listCommits({
       owner,
       repo,
-      sha: commitHash
+      since: since
     })).data.map(commit => commit.commit.message);
   } catch (error) {
     core.setFailed(`Action failed with error ${error}`);
@@ -88,9 +88,9 @@ async function run() {
     core.notice(`Release and Tag '${prefixedPackageVersion}' already exists`);
   } else {
     if (generateReleaseNotes) {
-      const commitHash = await latestReleaseCommitHash(octokit);
-      core.info(`Latest release commit hash: ${commitHash}`);
-      const commitMessages = await commitMessagesSinceCommitHash(octokit, commitHash);
+      const date = await latestReleaseDate(octokit);
+      core.info(`Latest release commit hash: ${date}`);
+      const commitMessages = await commitMessagesSinceCommitHash(octokit, date ? date : undefined);
       commitMessages?.forEach(msg => core.info(msg));
       releaseNotes = commitMessages?.join("\n");
     }
