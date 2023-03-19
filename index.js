@@ -77,7 +77,9 @@ async function run() {
     else {
         if (generateReleaseNotes) {
             const commitHash = await latestReleaseCommitHash(octokit);
+            core.info(`Latest release commit hash: ${commitHash}`);
             const commitMessages = await commitMessagesSinceCommitHash(octokit, commitHash);
+            commitMessages?.forEach(msg => core.info(msg));
             releaseNotes = commitMessages?.join("\n");
         }
         await createRelease(octokit, prefixedPackageVersion, releaseNotes);

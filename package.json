@@ -1,6 +1,6 @@
 {
     "name": "github-action-node-release",
-    "version": "4.1.0",
+    "version": "4.1.1",
     "description": "Create a release based on the package.json version",
     "main": "index.js",
     "type": "module",
