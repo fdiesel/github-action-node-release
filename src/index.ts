@@ -1,13 +1,13 @@
-import * as core from "@actions/core";
-import * as github from "@actions/github";
-import { readFileSync } from "fs";
+import * as core from '@actions/core';
+import * as github from '@actions/github';
+import { readFileSync } from 'fs';
 
 let created = false;
 const { repo, owner } = github.context.repo;
 
 function getPackageVersion() {
-  const filePath = core.getInput("path");
-  const fileRaw = readFileSync(filePath, { encoding: "utf8" });
+  const filePath = core.getInput('path');
+  const fileRaw = readFileSync(filePath, { encoding: 'utf8' });
   const file = JSON.parse(fileRaw);
   return file.version;
 }
@@ -20,7 +20,7 @@ async function releaseExists(
     await octokit.rest.repos.getReleaseByTag({
       owner,
       repo,
-      tag: tagName,
+      tag: tagName
     });
     return true;
   } catch {
@@ -50,56 +50,74 @@ async function createRelease(
   }
 }
 
-async function latestReleaseDate(octokit: ReturnType<typeof github.getOctokit>) {
+async function latestReleaseDate(
+  octokit: ReturnType<typeof github.getOctokit>
+) {
   try {
-    return (await octokit.rest.repos.getLatestRelease({
-      owner,
-      repo
-    })).data.published_at;
+    return (
+      await octokit.rest.repos.getLatestRelease({
+        owner,
+        repo
+      })
+    ).data.published_at;
   } catch (error) {
     return undefined;
   }
 }
 
-async function commitMessagesSinceCommitHash(octokit: ReturnType<typeof github.getOctokit>, since: string | undefined) {
+async function commitMessagesSinceCommitHash(
+  octokit: ReturnType<typeof github.getOctokit>,
+  since: string | undefined
+) {
   try {
-    return (await octokit.rest.repos.listCommits({
-      owner,
-      repo,
-      since: since
-    })).data.map(commit => commit.commit.message);
+    return (
+      await octokit.rest.repos.listCommits({
+        owner,
+        repo,
+        since: since
+      })
+    ).data.map((commit) => commit.commit.message);
   } catch (error) {
     core.setFailed(`Action failed with error ${error}`);
   }
 }
 
 async function run() {
+  const dryRun = core.getInput('dry_run') == 'true';
   const packageVersion = getPackageVersion();
   const prefixedPackageVersion = core.getInput('prefix') + packageVersion;
-  const token = core.getInput("token");
+  const token = core.getInput('token');
   const octokit = github.getOctokit(token);
   const generateReleaseNotes = core.getInput('notes') == 'true';
 
   const exists = await releaseExists(octokit, prefixedPackageVersion);
 
   let releaseNotes;
+  let versionHasChanged = true;
 
   if (exists) {
     core.notice(`Release and Tag '${prefixedPackageVersion}' already exists`);
+    versionHasChanged = false;
   } else {
     if (generateReleaseNotes) {
       const date = await latestReleaseDate(octokit);
       core.info(`Latest release commit hash: ${date}`);
-      const commitMessages = await commitMessagesSinceCommitHash(octokit, date ? date : undefined);
-      commitMessages?.forEach(msg => core.info(msg));
-      releaseNotes = commitMessages?.join("\n");
+      const commitMessages = await commitMessagesSinceCommitHash(
+        octokit,
+        date ? date : undefined
+      );
+      commitMessages?.forEach((msg) => core.info(msg));
+      releaseNotes = commitMessages?.join('\n');
     }
-    await createRelease(octokit, prefixedPackageVersion, releaseNotes);
+    if (!dryRun) {
+      await createRelease(octokit, prefixedPackageVersion, releaseNotes);
+    }
   }
 
-  core.setOutput("created", created);
-  core.setOutput("version", packageVersion);
-  core.setOutput("changelog", releaseNotes || "");
+  core.setOutput('created', created);
+  core.setOutput('version', packageVersion);
+  core.setOutput('changelog', releaseNotes || '');
+  core.setOutput('version_changed', versionHasChanged);
 }
 
 run();

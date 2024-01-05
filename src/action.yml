@@ -10,15 +10,19 @@ inputs:
     required: true
   path:
     description: Path to package.json file
-    default: "./package.json"
+    default: './package.json'
     required: false
   prefix:
     description: Optional version prefix
-    default: ""
+    default: ''
     required: false
   notes:
     description: Optional generating release notes
-    default: "true"
+    default: 'true'
+    required: false
+  dry_run:
+    description: Optional dry run
+    default: 'false'
     required: false
 outputs:
   created:
@@ -27,6 +31,8 @@ outputs:
     description: Version in package.json
   changelog:
     description: List of all commits since last release
+  version_changed:
+    description: If version has changed
 runs:
   using: node16
   main: index.js
