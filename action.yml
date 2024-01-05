@@ -32,7 +32,7 @@ outputs:
   changelog:
     description: List of all commits since last release
   version_changed:
-    description: If version was changed
+    description: If version has changed
 runs:
   using: node16
   main: index.js
