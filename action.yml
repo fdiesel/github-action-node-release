@@ -34,5 +34,5 @@ outputs:
   version_changed:
     description: If version has changed
 runs:
-  using: node16
+  using: node20
   main: index.js
